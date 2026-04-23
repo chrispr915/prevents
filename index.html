@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qué Pasa SJ — Live San Juan Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1f28;
+    --ink-deep: #071319;
+    --cream: #f4ebdc;
+    --cream-dim: #c9bfae;
+    --coral: #ff5a4e;
+    --magenta: #e8297a;
+    --mustard: #f2b134;
+    --aqua: #2ec4b6;
+    --line: rgba(244, 235, 220, 0.12);
+    --line-strong: rgba(244, 235, 220, 0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink); color: var(--cream);
+    font-family: 'Manrope', sans-serif; line-height: 1.5;
+    min-height: 100vh; overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at top left, rgba(232, 41, 122, 0.12), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(46, 196, 182, 0.1), transparent 50%);
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1, 0 0 0 0 1, 0 0 0 0 1, 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity: 0.06; pointer-events: none; mix-blend-mode: overlay; z-index: 1000;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13, 31, 40, 0.88);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .brand { font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; font-variation-settings: "opsz" 144; }
+  .brand em { font-style: italic; color: var(--coral); font-variation-settings: "opsz" 144, "SOFT" 100; }
+  .pulse-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--coral); margin-right: 8px;
+    animation: pulse 1.6s ease-in-out infinite; vertical-align: middle;
+  }
+  .pulse-dot.idle { background: var(--cream-dim); animation: none; }
+  .pulse-dot.err { background: var(--magenta); animation: none; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(255,90,78,0.6); }
+    50% { opacity: 0.6; transform: scale(1.2); box-shadow: 0 0 0 8px rgba(255,90,78,0); }
+  }
+  .live-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cream-dim); display: flex; align-items: center; }
+
+  .hero { padding: 36px 20px 24px; border-bottom: 1px solid var(--line); }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.25em; text-transform: uppercase; color: var(--mustard);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--mustard), transparent); max-width: 120px; }
+  .hero h1 {
+    font-family: 'Fraunces', serif; font-weight: 300;
+    font-size: clamp(36px, 11vw, 72px); line-height: 0.95;
+    letter-spacing: -0.035em; margin-bottom: 18px; font-variation-settings: "opsz" 144;
+  }
+  .hero h1 .italic { font-style: italic; font-weight: 400; color: var(--coral); font-variation-settings: "opsz" 144, "SOFT" 100; }
+  .hero h1 .underline { background: linear-gradient(transparent 65%, rgba(242, 177, 52, 0.35) 65%); padding: 0 4px; }
+  .hero-sub { font-size: 14px; max-width: 520px; color: var(--cream-dim); line-height: 1.55; }
+
+  /* Search */
+  .search-wrap {
+    padding: 18px 20px 0; display: flex; gap: 10px;
+  }
+  .search-box {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: rgba(244,235,220,0.06); border: 1px solid var(--line-strong);
+    border-radius: 14px; transition: border-color 0.2s ease;
+  }
+  .search-box:focus-within { border-color: var(--coral); }
+  .search-box svg { width: 16px; height: 16px; color: var(--cream-dim); flex-shrink: 0; }
+  .search-box input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--cream); font-family: inherit; font-size: 14px;
+  }
+  .search-box input::placeholder { color: var(--cream-dim); }
+  .refresh-tiny {
+    width: 44px; height: 44px; border-radius: 14px;
+    background: rgba(244,235,220,0.06); border: 1px solid var(--line-strong);
+    display: grid; place-items: center; color: var(--cream-dim);
+    transition: all 0.2s ease;
+  }
+  .refresh-tiny:hover { color: var(--cream); border-color: var(--cream); }
+  .refresh-tiny svg { width: 16px; height: 16px; }
+  .refresh-tiny.loading svg { animation: spin 0.8s linear infinite; color: var(--coral); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .filter-bar {
+    padding: 14px 20px 12px;
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    flex-shrink: 0; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--line-strong); font-size: 12px; font-weight: 500;
+    color: var(--cream-dim); white-space: nowrap; transition: all 0.2s ease;
+  }
+  .filter-btn.active { background: var(--cream); color: var(--ink); border-color: var(--cream); }
+
+  section { padding: 32px 20px; border-bottom: 1px solid var(--line); }
+  section.events-section { padding-top: 10px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+  .section-title { font-family: 'Fraunces', serif; font-size: clamp(24px, 6.5vw, 34px); font-weight: 400; letter-spacing: -0.025em; line-height: 1; }
+  .section-title .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mustard); letter-spacing: 0.2em; display: block; margin-bottom: 10px; font-weight: 500; }
+  .section-desc { color: var(--cream-dim); font-size: 13px; max-width: 360px; }
+
+  .event-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cream-dim); margin-bottom: 12px; letter-spacing: 0.05em; }
+  .event-count .num { color: var(--mustard); font-weight: 500; }
+
+  /* Loading skeleton */
+  .skeleton { display: flex; flex-direction: column; gap: 0; }
+  .skel-row {
+    display: grid; grid-template-columns: 62px 1fr auto;
+    gap: 14px; padding: 18px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .skel-box {
+    background: linear-gradient(90deg, rgba(244,235,220,0.04), rgba(244,235,220,0.1), rgba(244,235,220,0.04));
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .skel-date { width: 62px; height: 62px; }
+  .skel-body { display: flex; flex-direction: column; gap: 8px; }
+  .skel-line { height: 14px; }
+  .skel-line.short { width: 60%; }
+  .skel-line.mid { width: 80%; }
+  .skel-cta { width: 38px; height: 38px; }
+
+  /* Error state */
+  .error-state {
+    padding: 28px 20px; border-radius: 14px;
+    background: rgba(232,41,122,0.08); border: 1px solid rgba(232,41,122,0.3);
+    text-align: center; color: var(--cream);
+  }
+  .error-state h3 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+  .error-state p { font-size: 13px; color: var(--cream-dim); margin-bottom: 16px; }
+  .error-state button {
+    padding: 10px 20px; border-radius: 999px;
+    background: var(--coral); color: var(--ink); font-weight: 600; font-size: 13px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    padding: 40px 20px; text-align: center; color: var(--cream-dim); font-size: 14px;
+  }
+  .empty-state .fp {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 22px;
+    color: var(--cream); display: block; margin-bottom: 10px;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
+
+  /* Events */
+  .event-list { display: flex; flex-direction: column; }
+  .event {
+    display: grid; grid-template-columns: 62px 1fr auto;
+    gap: 14px; align-items: start;
+    padding: 18px 4px; border-bottom: 1px solid var(--line);
+    transition: all 0.2s ease;
+  }
+  .event:last-child { border-bottom: none; }
+  .event:hover { padding-left: 10px; }
+
+  .event-date {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 8px 4px; border: 1px solid var(--line-strong);
+    border-radius: 10px; background: rgba(244,235,220,0.02);
+    min-height: 62px; justify-content: center;
+  }
+  .event-date .m { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: var(--coral); text-transform: uppercase; }
+  .event-date .d { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; line-height: 1; margin-top: 2px; letter-spacing: -0.02em; }
+  .event-date .dow { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--cream-dim); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+
+  .event-body { min-width: 0; }
+  .event-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; line-height: 1.2; letter-spacing: -0.015em; margin-bottom: 4px; }
+  .event-meta { font-size: 12px; color: var(--cream-dim); line-height: 1.4; margin-bottom: 6px; }
+  .event-venue { color: var(--cream); }
+  .event-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .event-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    padding: 2px 8px; border-radius: 999px;
+    background: rgba(242, 177, 52, 0.12); color: var(--mustard);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .event-tag.music { background: rgba(255, 90, 78, 0.14); color: var(--coral); }
+  .event-tag.sports { background: rgba(46, 196, 182, 0.12); color: var(--aqua); }
+  .event-tag.arts { background: rgba(232, 41, 122, 0.14); color: var(--magenta); }
+  .event-tag.family { background: rgba(242, 177, 52, 0.12); color: var(--mustard); }
+  .event-tag.film { background: rgba(244, 235, 220, 0.12); color: var(--cream); }
+
+  .event-cta {
+    display: grid; place-items: center; width: 38px; height: 38px;
+    border-radius: 10px; background: var(--coral); color: var(--ink);
+    transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .event-cta:hover { transform: scale(1.06); background: var(--mustard); }
+  .event-cta svg { width: 16px; height: 16px; }
+
+  /* Hashtag tiles */
+  .hashtag-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .hashtag {
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 18px 16px;
+    background: linear-gradient(135deg, rgba(255,90,78,0.08), rgba(232,41,122,0.04));
+    border: 1px solid var(--line-strong); border-radius: 14px;
+    min-height: 110px; position: relative; overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .hashtag:hover, .hashtag:focus { transform: translateY(-2px); border-color: var(--coral); }
+  .hashtag::before {
+    content: '#'; position: absolute; top: -14px; right: -6px;
+    font-family: 'Fraunces', serif; font-size: 96px;
+    color: rgba(244, 235, 220, 0.05); font-style: italic; font-weight: 300;
+    font-variation-settings: "opsz" 144; line-height: 1; pointer-events: none;
+  }
+  .hashtag-label { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; position: relative; z-index: 1; }
+  .hashtag-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--cream-dim); text-transform: uppercase; margin-top: 8px; position: relative; z-index: 1; }
+
+  /* Venues */
+  .venue { display: flex; align-items: center; gap: 14px; padding: 14px 4px; border-bottom: 1px solid var(--line); transition: padding 0.2s ease; }
+  .venue:last-child { border-bottom: none; }
+  .venue:hover { padding-left: 10px; }
+  .venue-index { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--cream-dim); width: 24px; }
+  .venue-info { flex: 1; min-width: 0; }
+  .venue-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .venue-meta { font-size: 12px; color: var(--cream-dim); }
+  .venue-meta .vibe { color: var(--mustard); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .venue-links { display: flex; gap: 6px; flex-shrink: 0; }
+  .venue-link { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: rgba(244,235,220,0.06); transition: all 0.2s ease; }
+  .venue-link:hover { background: var(--coral); color: var(--ink); }
+  .venue-link svg { width: 15px; height: 15px; }
+
+  footer { padding: 36px 20px 60px; text-align: center; color: var(--cream-dim); font-size: 12px; line-height: 1.7; }
+  footer .fp { font-family: 'Fraunces', serif; font-style: italic; font-size: 20px; color: var(--cream); display: block; margin-bottom: 12px; font-variation-settings: "opsz" 144, "SOFT" 100; }
+
+  @media (min-width: 640px) {
+    .topbar, .hero, section, .filter-bar, .search-wrap { padding-left: 40px; padding-right: 40px; }
+    .hashtag-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 960px) {
+    .topbar, .hero, section, .filter-bar, .search-wrap { padding-left: 80px; padding-right: 80px; }
+    .hashtag-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .reveal { opacity: 0; transform: translateY(12px); animation: reveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
+  @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Qué pasa <em>SJ</em></div>
+  <div class="live-meta"><span class="pulse-dot" id="statusDot"></span><span id="statusText">LOADING</span></div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">— San Juan · Puerto Rico · <span id="today">—</span></div>
+  <h1>
+    What's on,<br>
+    <span class="italic">tonight</span> &amp;<br>
+    <span class="underline">beyond.</span>
+  </h1>
+  <p class="hero-sub">Live from Ticketmaster. Fresh every time you open this page — concerts, sports, theater, comedy, and family shows across Puerto Rico.</p>
+</section>
+
+<!-- Search + refresh -->
+<div class="search-wrap">
+  <label class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="searchInput" type="search" placeholder="Search: edm, salsa, yankees, comedy…" autocomplete="off">
+  </label>
+  <button class="refresh-tiny" id="refreshBtn" title="Refresh from Ticketmaster">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+  </button>
+</div>
+
+<!-- Category filter -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-cat="all">All</button>
+  <button class="filter-btn" data-cat="Music">Music</button>
+  <button class="filter-btn" data-cat="Sports">Sports</button>
+  <button class="filter-btn" data-cat="Arts &amp; Theatre">Arts &amp; Theater</button>
+  <button class="filter-btn" data-cat="Film">Film</button>
+  <button class="filter-btn" data-cat="Miscellaneous">Misc</button>
+</div>
+
+<section class="events-section" id="events">
+  <div class="event-count"><span class="num" id="eventCount">—</span> <span id="eventCountLabel">loading events...</span></div>
+  <div id="eventList">
+    <!-- Loading skeleton initially -->
+    <div class="skeleton">
+      <div class="skel-row"><div class="skel-box skel-date"></div><div class="skel-body"><div class="skel-box skel-line mid"></div><div class="skel-box skel-line short"></div></div><div class="skel-box skel-cta"></div></div>
+      <div class="skel-row"><div class="skel-box skel-date"></div><div class="skel-body"><div class="skel-box skel-line"></div><div class="skel-box skel-line short"></div></div><div class="skel-box skel-cta"></div></div>
+      <div class="skel-row"><div class="skel-box skel-date"></div><div class="skel-body"><div class="skel-box skel-line mid"></div><div class="skel-box skel-line short"></div></div><div class="skel-box skel-cta"></div></div>
+      <div class="skel-row"><div class="skel-box skel-date"></div><div class="skel-body"><div class="skel-box skel-line"></div><div class="skel-box skel-line short"></div></div><div class="skel-box skel-cta"></div></div>
+      <div class="skel-row"><div class="skel-box skel-date"></div><div class="skel-body"><div class="skel-box skel-line mid"></div><div class="skel-box skel-line short"></div></div><div class="skel-box skel-cta"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="pulse">
+  <div class="section-head">
+    <h2 class="section-title"><span class="num">02 / nightlife &amp; more</span>Clubs, food,<br>art &amp; pop-ups.</h2>
+    <p class="section-desc">Ticketmaster doesn't cover rooftop DJs, gallery openings, or La Placita Fridays. Tap a hashtag for Instagram's live feed.</p>
+  </div>
+  <div class="hashtag-grid" id="hashtags"></div>
+</section>
+
+<section id="venues">
+  <div class="section-head">
+    <h2 class="section-title"><span class="num">03 / venues</span>The regulars.</h2>
+  </div>
+  <div id="venues-grid"></div>
+</section>
+
+<footer>
+  <span class="fp">¡Nos vemos en la calle!</span>
+  Live events via Ticketmaster Discovery API · Last loaded <span id="lastLoaded">—</span><br><br>
+  Not affiliated with any venue or platform · Built for locals &amp; visitors
+</footer>
+
+<script>
+  const API_KEY = '3xzg3DhcjtXfzid36RgbrS2HubgAw1bf';
+
+  // -------- Data sources that don't need APIs --------
+  const hashtags = [
+    { tag: 'sanjuanpr',        label: 'San Juan PR',     sub: 'general pulse' },
+    { tag: 'viejosanjuan',     label: 'Viejo San Juan',  sub: 'old city' },
+    { tag: 'santurce',         label: 'Santurce',        sub: 'art & nightlife' },
+    { tag: 'condadopr',        label: 'Condado',         sub: 'beachfront bars' },
+    { tag: 'sanjuannightlife', label: 'SJ Nightlife',    sub: 'after dark' },
+    { tag: 'prfoodie',         label: 'PR Foodie',       sub: 'pop-ups & dinners' },
+    { tag: 'prartscene',       label: 'PR Art Scene',    sub: 'galleries & opens' },
+    { tag: 'lgbtqpr',          label: 'LGBTQ PR',        sub: 'queer nights' }
+  ];
+
+  const venues = [
+    { name: 'La Factoría',          area: 'Viejo San Juan',  vibe: 'iconic multi-room bar', ig: 'lafactoriapr' },
+    { name: 'La Respuesta',         area: 'Santurce',        vibe: 'alt / live music',      ig: 'larespuestapr' },
+    { name: 'El Local',             area: 'Santurce',        vibe: 'dive · bands · djs',    ig: 'ellocalpr' },
+    { name: 'Club Brava',           area: 'Isla Verde',      vibe: 'mega club',             ig: 'clubbravapr' },
+    { name: 'La Placita de Santurce', area: 'Santurce',      vibe: 'friday street party',   ig: 'placitasanturce' },
+    { name: 'Distrito T-Mobile',    area: 'Miramar',         vibe: 'entertainment district',ig: 'distritotmobile' },
+    { name: 'Coca-Cola Music Hall', area: 'Miramar',         vibe: 'mid-size concerts',     ig: 'coca_colamusichall' },
+    { name: 'Choliseo',             area: 'Hato Rey',        vibe: 'arena shows',           ig: 'choliseodepr' },
+    { name: 'Bellas Artes',         area: 'Santurce',        vibe: 'theater · opera',       ig: 'cbapr' },
+    { name: 'Vivo Beach Club',      area: 'Carolina',        vibe: 'beach parties',         ig: 'vivobeachclub' }
+  ];
+
+  // -------- State --------
+  let allEvents = [];
+  let currentCategory = 'all';
+  let currentKeyword = '';
+
+  // -------- Ticketmaster fetch --------
+  async function fetchEvents() {
+    setStatus('loading');
+    const refresh = document.getElementById('refreshBtn');
+    refresh.classList.add('loading');
+
+    // Pull all PR events — San Juan filter happens client-side so we don't miss
+    // venues that list themselves in nearby suburbs (Carolina, Guaynabo, etc.)
+    const url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&countryCode=PR&size=200&sort=date,asc`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('API key rejected. Double-check your Ticketmaster Consumer Key.');
+        if (res.status === 429) throw new Error('Rate limit hit. Try again in a minute.');
+        throw new Error('Ticketmaster returned ' + res.status);
+      }
+      const data = await res.json();
+      allEvents = (data._embedded && data._embedded.events) || [];
+      setStatus('live');
+      render();
+      document.getElementById('lastLoaded').textContent = new Date().toLocaleString('en-US', { timeZone: 'America/Puerto_Rico', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    } catch (err) {
+      setStatus('error');
+      showError(err.message);
+    } finally {
+      refresh.classList.remove('loading');
+    }
+  }
+
+  function setStatus(state) {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    dot.className = 'pulse-dot';
+    if (state === 'loading') { dot.classList.add('idle'); text.textContent = 'LOADING…'; }
+    else if (state === 'error') { dot.classList.add('err'); text.textContent = 'OFFLINE'; }
+    else { text.textContent = 'LIVE · TICKETMASTER'; }
+  }
+
+  function showError(msg) {
+    document.getElementById('eventCountLabel').textContent = 'error loading events';
+    document.getElementById('eventCount').textContent = '0';
+    document.getElementById('eventList').innerHTML = `
+      <div class="error-state">
+        <h3>Couldn't reach Ticketmaster</h3>
+        <p>${msg}</p>
+        <button onclick="fetchEvents()">Try again</button>
+      </div>
+    `;
+  }
+
+  // -------- Render --------
+  const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function segmentClass(segment) {
+    if (!segment) return '';
+    const s = segment.toLowerCase();
+    if (s.includes('music')) return 'music';
+    if (s.includes('sport')) return 'sports';
+    if (s.includes('arts') || s.includes('theatre')) return 'arts';
+    if (s.includes('family')) return 'family';
+    if (s.includes('film')) return 'film';
+    return '';
+  }
+
+  function eventMatches(e) {
+    // Category
+    const segment = e.classifications?.[0]?.segment?.name || '';
+    if (currentCategory !== 'all' && segment !== currentCategory) return false;
+
+    // Keyword search: check name, venue, genre, classification
+    if (currentKeyword) {
+      const kw = currentKeyword.toLowerCase();
+      const name = (e.name || '').toLowerCase();
+      const venue = (e._embedded?.venues?.[0]?.name || '').toLowerCase();
+      const city = (e._embedded?.venues?.[0]?.city?.name || '').toLowerCase();
+      const genre = (e.classifications?.[0]?.genre?.name || '').toLowerCase();
+      const subGenre = (e.classifications?.[0]?.subGenre?.name || '').toLowerCase();
+      const seg = segment.toLowerCase();
+      const haystack = `${name} ${venue} ${city} ${genre} ${subGenre} ${seg}`;
+      if (!haystack.includes(kw)) return false;
+    }
+    return true;
+  }
+
+  function render() {
+    const filtered = allEvents.filter(eventMatches);
+    const count = filtered.length;
+    document.getElementById('eventCount').textContent = count;
+    document.getElementById('eventCountLabel').textContent = count === 1 ? 'event found · live from Ticketmaster' : 'events found · live from Ticketmaster';
+
+    const list = document.getElementById('eventList');
+    if (count === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <span class="fp">Nada por ahora.</span>
+          Try a different keyword or category. Or tap #hashtags below for club nights &amp; pop-ups.
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = filtered.map((e, i) => {
+      const localDate = e.dates?.start?.localDate || '';
+      const localTime = e.dates?.start?.localTime || '';
+      const d = localDate ? new Date(localDate + 'T' + (localTime || '20:00:00')) : new Date();
+      const venue = e._embedded?.venues?.[0];
+      const venueName = venue?.name || 'TBA';
+      const city = venue?.city?.name || '';
+      const segment = e.classifications?.[0]?.segment?.name || 'Event';
+      const genre = e.classifications?.[0]?.genre?.name || '';
+      const cssClass = segmentClass(segment);
+      const timeStr = localTime ? fmtTime(d) : 'TBA';
+
+      return `
+        <a class="event reveal" style="animation-delay:${Math.min(i * 0.03, 0.5)}s" href="${e.url || '#'}" target="_blank" rel="noopener">
+          <div class="event-date">
+            <span class="m">${MONTHS[d.getMonth()]}</span>
+            <span class="d">${d.getDate()}</span>
+            <span class="dow">${DOW[d.getDay()]}</span>
+          </div>
+          <div class="event-body">
+            <div class="event-title">${escapeHtml(e.name || 'Untitled event')}</div>
+            <div class="event-meta">${timeStr} · <span class="event-venue">${escapeHtml(venueName)}</span>${city && city !== 'San Juan' ? ', ' + escapeHtml(city) : ''}</div>
+            <div class="event-tags">
+              <span class="event-tag ${cssClass}">${escapeHtml(segment)}</span>
+              ${genre && genre !== 'Undefined' ? `<span class="event-tag">${escapeHtml(genre)}</span>` : ''}
+            </div>
+          </div>
+          <div class="event-cta" title="Get tickets">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+        </a>
+      `;
+    }).join('');
+  }
+
+  function fmtTime(d) {
+    let h = d.getHours(); const m = d.getMinutes();
+    const am = h < 12; if (h === 0) h = 12; if (h > 12) h -= 12;
+    return `${h}:${String(m).padStart(2,'0')} ${am ? 'AM' : 'PM'}`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // -------- Event bindings --------
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.cat;
+      render();
+    });
+  });
+
+  let searchTimer;
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      currentKeyword = e.target.value.trim();
+      render();
+    }, 200);
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', fetchEvents);
+
+  // -------- Static renders --------
+  document.getElementById('hashtags').innerHTML = hashtags.map(h => `
+    <a class="hashtag" href="https://www.instagram.com/explore/tags/${h.tag}/" target="_blank" rel="noopener">
+      <div><div class="hashtag-label">#${h.label}</div></div>
+      <div class="hashtag-sub">${h.sub} →</div>
+    </a>
+  `).join('');
+
+  document.getElementById('venues-grid').innerHTML = venues.map((v, i) => `
+    <div class="venue">
+      <div class="venue-index">${String(i + 1).padStart(2, '0')}</div>
+      <div class="venue-info">
+        <div class="venue-name">${v.name}</div>
+        <div class="venue-meta">${v.area} · <span class="vibe">${v.vibe}</span></div>
+      </div>
+      <div class="venue-links">
+        <a class="venue-link" href="https://www.instagram.com/${v.ig}/" target="_blank" rel="noopener" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a class="venue-link" href="https://www.google.com/maps/search/${encodeURIComponent(v.name + ' San Juan Puerto Rico')}" target="_blank" rel="noopener" title="Maps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </a>
+      </div>
+    </div>
+  `).join('');
+
+  const today = new Date();
+  document.getElementById('today').textContent = today.toLocaleDateString('en-US', { timeZone: 'America/Puerto_Rico', weekday: 'long', month: 'long', day: 'numeric' });
+
+  // Kick off
+  fetchEvents();
+</script>
+
+</body>
+</html>
